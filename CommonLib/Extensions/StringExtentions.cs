@@ -37,7 +37,7 @@ public static class StringExtentions
             {
                 // Tìm placeholder để thay thế (ví dụ: ${name})
                 string replaceKey = "\\" + match.Groups[0].Value;
-                // Lấy tên khóa từ placeholder (ví dụ: name từ ${name})� ${name})
+                // Lấy tên khóa từ placeholder (ví dụ: name từ ${name})� ${name})
                 string key = match.Groups[1].Value;
                 // Lấy giá trị của key từ rawdata rawdata rawdata rawdata
                 var value = rawdata.GetFieldValue(key);
@@ -71,7 +71,7 @@ public static class StringExtentions
 
     public static string GetTextEncodeTransform(this string content, Encoding sourceEncode, Encoding destEncode)
     {
-        // Kiểm tra nếu chuỗi content là null hoặc rỗng, trả về content� về content
+        // Kiểm tra nếu chuỗi content là null hoặc rỗng, trả về content� về content
         if (content.IsNullOrEmpty())
             return content;
 
@@ -114,7 +114,7 @@ public static class StringExtentions
         string[] listId = field.Split(".".ToCharArray());
         // Lấy thuộc tính (property) đầu tiên của cursorType có tên là listId[0]
         var property = cursorType.GetProperty(listId[0]);
-        // Lấy kiểu dữ liệu của thuộc tính này�c tính này
+        // Lấy kiểu dữ liệu của thuộc tính này�c tính này
         cursorType = property.PropertyType;
         //Type cursorType = typeof(TObject);
         // Nếu field chỉ có một phần tử (không có dấu "."), trả về kiểu dữ liệu của thuộc tính
