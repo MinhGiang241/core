@@ -1,0 +1,4 @@
+namespace CommonLib.Kafka
+{
+
+}
