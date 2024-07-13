@@ -1,11 +1,7 @@
-
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CommonLibCore.CommonLib.Attributes;
@@ -15,6 +11,7 @@ using Confluent.Kafka;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+
 namespace CommonLibCore.CommonLib
 {
     public static class ObjectExtention
@@ -24,7 +21,11 @@ namespace CommonLibCore.CommonLib
             charsToRemove.ForEach(c => str = str.Replace(c.ToString(), String.Empty));
             return str;
         }
-        public static List<string> GetAllFieldNameWithoutSubFields(this object value, bool ignoreNull = false)
+
+        public static List<string> GetAllFieldNameWithoutSubFields(
+            this object value,
+            bool ignoreNull = false
+        )
         {
             List<string> fields = new List<string>();
             if (value.GetType() == typeof(ExpandoObject))
@@ -44,10 +45,10 @@ namespace CommonLibCore.CommonLib
             }
             else
             {
-
-                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType()))
+                foreach (
+                    PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType())
+                )
                 {
-
                     object fieldValue = property.GetValue(value);
                     if (fieldValue == null)
                     {
@@ -60,6 +61,7 @@ namespace CommonLibCore.CommonLib
             }
             return fields;
         }
+
         public static List<string> GetAllFieldName(this object value, bool ignoreNull = false)
         {
             List<string> fields = new List<string>();
@@ -77,7 +79,17 @@ namespace CommonLibCore.CommonLib
                     }
                     Type fieldType = fieldValue.GetType();
 
-                    if (fieldType == typeof(int) || fieldType == typeof(string) || fieldType == typeof(long) || fieldType == typeof(DateTime) || fieldType == typeof(ObjectId) || fieldType == typeof(double) || fieldType == typeof(float) || fieldType == typeof(bool) || fieldType.BaseType == typeof(Enum))
+                    if (
+                        fieldType == typeof(int)
+                        || fieldType == typeof(string)
+                        || fieldType == typeof(long)
+                        || fieldType == typeof(DateTime)
+                        || fieldType == typeof(ObjectId)
+                        || fieldType == typeof(double)
+                        || fieldType == typeof(float)
+                        || fieldType == typeof(bool)
+                        || fieldType.BaseType == typeof(Enum)
+                    )
                         fields.Add(property);
                     else
                     {
@@ -88,10 +100,10 @@ namespace CommonLibCore.CommonLib
             }
             else
             {
-
-                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType()))
+                foreach (
+                    PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType())
+                )
                 {
-
                     object fieldValue = property.GetValue(value);
                     if (fieldValue == null)
                     {
@@ -100,7 +112,17 @@ namespace CommonLibCore.CommonLib
                         continue;
                     }
                     Type fieldType = property.PropertyType;
-                    if (fieldType == typeof(int) || fieldType == typeof(string) || fieldType == typeof(long) || fieldType == typeof(DateTime) || fieldType == typeof(ObjectId) || fieldType == typeof(double) || fieldType == typeof(float) || fieldType == typeof(bool) || fieldType.BaseType == typeof(Enum))
+                    if (
+                        fieldType == typeof(int)
+                        || fieldType == typeof(string)
+                        || fieldType == typeof(long)
+                        || fieldType == typeof(DateTime)
+                        || fieldType == typeof(ObjectId)
+                        || fieldType == typeof(double)
+                        || fieldType == typeof(float)
+                        || fieldType == typeof(bool)
+                        || fieldType.BaseType == typeof(Enum)
+                    )
                         fields.Add(property.Name);
                     else
                     {
@@ -111,20 +133,25 @@ namespace CommonLibCore.CommonLib
             }
             return fields;
         }
+
         public static bool IsList(this object o)
         {
-            if (o == null) return false;
-            return o is IList &&
-                   o.GetType().IsGenericType &&
-                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            if (o == null)
+                return false;
+            return o is IList
+                && o.GetType().IsGenericType
+                && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
         }
+
         public static bool IsDictionary(this object o)
         {
-            if (o == null) return false;
-            return o is IDictionary &&
-                   o.GetType().IsGenericType &&
-                   o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+            if (o == null)
+                return false;
+            return o is IDictionary
+                && o.GetType().IsGenericType
+                && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
         }
+
         public static dynamic ToDynamic(this object value)
         {
             IDictionary<string, object> expando = new ExpandoObject();
@@ -133,6 +160,7 @@ namespace CommonLibCore.CommonLib
                 expando.Add(property.Name, property.GetValue(value));
             return expando as ExpandoObject;
         }
+
         public static dynamic JsonStringToDynamic(this string value)
         {
             try
@@ -179,6 +207,7 @@ namespace CommonLibCore.CommonLib
             }
             return PropertyList;
         }
+
         public static bool HasSecondKey<T>()
         {
             PropertyInfo[] props = typeof(T).GetProperties();
@@ -196,17 +225,22 @@ namespace CommonLibCore.CommonLib
             }
             return false;
         }
+
         //tìm giá trị của thuộc tính Id --> phục vụ cho cache
         public static object GetKeyValue(this object obj)
         {
             String KeyName = obj.GetType().Name + "Id";
-            var IndexProp = obj.GetType().GetProperties().Where(p => p.Name == "Id" || p.Name == KeyName).SingleOrDefault();
+            var IndexProp = obj.GetType()
+                .GetProperties()
+                .Where(p => p.Name == "Id" || p.Name == KeyName)
+                .SingleOrDefault();
             if (IndexProp != null && !IndexProp.IsNullOrEmpty())
             {
                 return IndexProp.GetValue(obj);
             }
             return "";
         }
+
         /// <summary>
         /// check xem đối tượng có thuộc tính key không
         /// </summary>
@@ -218,20 +252,31 @@ namespace CommonLibCore.CommonLib
             PropertyInfo property = null;
             if (ignoreCase)
             {
-                property = obj.GetType().GetProperties().Where(p => p.Name.ToLower() == KeyName.ToLower()).SingleOrDefault();
+                property = obj.GetType()
+                    .GetProperties()
+                    .Where(p => p.Name.ToLower() == KeyName.ToLower())
+                    .SingleOrDefault();
             }
             else
-                property = obj.GetType().GetProperties().Where(p => p.Name == KeyName).SingleOrDefault();
+                property = obj.GetType()
+                    .GetProperties()
+                    .Where(p => p.Name == KeyName)
+                    .SingleOrDefault();
             return property != null;
         }
+
         /// <summary>
-        /// cungx tương tự cách getFieldvalue thôi nhưng csai này lâ từ nguồn trên mạng và thây cách xử lý nó ngắn hơn? 
+        /// cungx tương tự cách getFieldvalue thôi nhưng csai này lâ từ nguồn trên mạng và thây cách xử lý nó ngắn hơn?
         /// Tuy nhiên cái này chưa xử lý case như hàm kia
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public static object GetDeepPropertyValue(this object instance, string path, bool ignoreCase = true)
+        public static object GetDeepPropertyValue(
+            this object instance,
+            string path,
+            bool ignoreCase = true
+        )
         {
             var pp = path.Split('.');
             Type t = instance.GetType();
@@ -242,7 +287,9 @@ namespace CommonLibCore.CommonLib
                     propInfo = t.GetProperty(prop);
                 else
                 {
-                    propInfo = t.GetProperties().Where(p => p.Name.ToLower() == prop.ToLower()).FirstOrDefault();
+                    propInfo = t.GetProperties()
+                        .Where(p => p.Name.ToLower() == prop.ToLower())
+                        .FirstOrDefault();
                 }
                 if (propInfo != null)
                 {
@@ -254,6 +301,7 @@ namespace CommonLibCore.CommonLib
             }
             return instance;
         }
+
         /// <summary>
         /// Tìm giá trị của thuôc tín KeyName
         /// Hàm này dùng được cho mọi loại đối tượng bao gồm cả dynamic, anonymous chứ không như hàm Deep ở trên
@@ -271,7 +319,8 @@ namespace CommonLibCore.CommonLib
                 Dictionary<string, object> dic = (Dictionary<string, object>)obj;
                 if (dic.ContainsKey(KeyName))
                     return dic[KeyName];
-                else return null;
+                else
+                    return null;
             }
             if (KeyName.IndexOf('.') >= 0)
             {
@@ -292,17 +341,22 @@ namespace CommonLibCore.CommonLib
                 {
                     return value.GetFieldValue(subName, ignoreCase);
                 }
-
             }
             else
             {
                 PropertyInfo property = null;
                 if (ignoreCase)
                 {
-                    property = obj.GetType().GetProperties().Where(p => p.Name.ToLower() == KeyName.ToLower()).SingleOrDefault();
+                    property = obj.GetType()
+                        .GetProperties()
+                        .Where(p => p.Name.ToLower() == KeyName.ToLower())
+                        .SingleOrDefault();
                 }
                 else
-                    property = obj.GetType().GetProperties().Where(p => p.Name == KeyName).SingleOrDefault();
+                    property = obj.GetType()
+                        .GetProperties()
+                        .Where(p => p.Name == KeyName)
+                        .SingleOrDefault();
                 if (property != null && !property.IsNullOrEmpty())
                 {
                     var result = property.GetValue(obj);
@@ -316,9 +370,24 @@ namespace CommonLibCore.CommonLib
 
             return "";
         }
-        public static void Set(this object obj, String FieldName, object Value, bool ignoreCase = false)
+
+        public static void Set(
+            this object obj,
+            String FieldName,
+            object Value,
+            bool ignoreCase = false
+        )
         {
-            var IndexProp = obj.GetType().GetProperties().Where(p => (p.Name == FieldName || (ignoreCase && p.Name.ToLower() == FieldName.ToLower()))).SingleOrDefault();
+            var IndexProp = obj.GetType()
+                .GetProperties()
+                .Where(
+                    p =>
+                        (
+                            p.Name == FieldName
+                            || (ignoreCase && p.Name.ToLower() == FieldName.ToLower())
+                        )
+                )
+                .SingleOrDefault();
             if (IndexProp != null && !IndexProp.IsNullOrEmpty())
             {
                 IndexProp.SetValue(obj, Value);
@@ -329,6 +398,7 @@ namespace CommonLibCore.CommonLib
         {
             return ((MemberExpression)memberAccess.Body).Member.Name;
         }
+
         public static void UpdateField<T>(this IEnumerable<T> entities, Func<T, T> func)
         {
             foreach (var entity in entities)
@@ -339,16 +409,24 @@ namespace CommonLibCore.CommonLib
 
         public static void CloneAllFieldTo<T>(this object Source, T DestObj)
         {
-            PropertyInfo[] SourceProperties = Source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo[] selectProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] SourceProperties = Source
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
+            PropertyInfo[] selectProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             //Expression.Property(Expression.Constant(Source,typeof(T)),)
             foreach (var selectProp in selectProperties)
             {
                 String Name = selectProp.Name;
                 try
                 {
-                    var FindInSource = SourceProperties.Where(s => s.Name == Name).SingleOrDefault();
+                    var FindInSource = SourceProperties
+                        .Where(s => s.Name == Name)
+                        .SingleOrDefault();
                     var FindInDest = DestProperties.Where(s => s.Name == Name).SingleOrDefault();
                     if (FindInSource != null && FindInDest != null)
                     {
@@ -358,7 +436,6 @@ namespace CommonLibCore.CommonLib
                 catch
                 {
                     //có thể xảy ra lỗi không giống kiểu dữ liệu ở đấy --> sẽ xử lý riêng
-
                 }
             }
         }
@@ -366,10 +443,10 @@ namespace CommonLibCore.CommonLib
         //hàm này sẽ copy toàn bộ các trường được khai báo từ T sang TObject
         /// <summary>
         /// data.CloneField(input, x => new { x.password, x.userName, x.Id });
-        /// Copy các trường từ data sang input 
+        /// Copy các trường từ data sang input
         /// Nếu ignore = true: Copy TRỪ các trường: password, userName, Id
         /// Nếu ignore = false: Copy các trường được khai báo sang.
-        /// Sử dụng trong trường hợp không cho thay đổi các field này, kể cả client có gửi lên 
+        /// Sử dụng trong trường hợp không cho thay đổi các field này, kể cả client có gửi lên
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TField"></typeparam>
@@ -377,11 +454,23 @@ namespace CommonLibCore.CommonLib
         /// <param name="DestObj"></param>
         /// <param name="member"></param>
         /// <param name="cloneIfNotEmpty"></param>
-        public static void CloneField<T, TField>(this object Source, T DestObj, Expression<Func<T, TField>> member, bool cloneIfNotEmpty = false, bool ignore = false)
+        public static void CloneField<T, TField>(
+            this object Source,
+            T DestObj,
+            Expression<Func<T, TField>> member,
+            bool cloneIfNotEmpty = false,
+            bool ignore = false
+        )
         {
-            PropertyInfo[] SourceProperties = Source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo[] selectProperties = typeof(TField).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] SourceProperties = Source
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
+            PropertyInfo[] selectProperties = typeof(TField).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             //Expression.Property(Expression.Constant(Source,typeof(T)),)
 
             if (ignore == false)
@@ -391,8 +480,12 @@ namespace CommonLibCore.CommonLib
                     string Name = selectProp.Name;
                     try
                     {
-                        var FindInSource = SourceProperties.Where(s => s.Name == Name).SingleOrDefault();
-                        var FindInDest = DestProperties.Where(s => s.Name == Name).SingleOrDefault();
+                        var FindInSource = SourceProperties
+                            .Where(s => s.Name == Name)
+                            .SingleOrDefault();
+                        var FindInDest = DestProperties
+                            .Where(s => s.Name == Name)
+                            .SingleOrDefault();
                         if (FindInSource != null && FindInDest != null)
                         {
                             var valueOfSource = FindInSource.GetValue(Source);
@@ -407,7 +500,6 @@ namespace CommonLibCore.CommonLib
                     catch
                     {
                         //có thể xảy ra lỗi không giống kiểu dữ liệu ở đấy --> sẽ xử lý riêng
-
                     }
                 }
             }
@@ -421,8 +513,12 @@ namespace CommonLibCore.CommonLib
                     {
                         try
                         {
-                            var FindInSource = SourceProperties.Where(s => s.Name == Name).SingleOrDefault();
-                            var FindInDest = DestProperties.Where(s => s.Name == Name).SingleOrDefault();
+                            var FindInSource = SourceProperties
+                                .Where(s => s.Name == Name)
+                                .SingleOrDefault();
+                            var FindInDest = DestProperties
+                                .Where(s => s.Name == Name)
+                                .SingleOrDefault();
                             if (FindInSource != null && FindInDest != null)
                             {
                                 var valueOfSource = FindInSource.GetValue(Source);
@@ -437,25 +533,31 @@ namespace CommonLibCore.CommonLib
                         catch
                         {
                             //có thể xảy ra lỗi không giống kiểu dữ liệu ở đấy --> sẽ xử lý riêng
-
                         }
                     }
                 }
             }
-
         }
 
-        public static void CloneDictionary(this Dictionary<string, object> source, Dictionary<string, object> dest)
+        public static void CloneDictionary(
+            this Dictionary<string, object> source,
+            Dictionary<string, object> dest
+        )
         {
             foreach (var key in source.Keys)
             {
                 dest[key] = source[key];
             }
         }
+
         public static void CloneField<T>(this object Source, T DestObj, params string[] member)
         {
-            PropertyInfo[] SourceProperties = Source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] SourceProperties = Source
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             //PropertyInfo[] selectProperties = typeof(TField).GetProperties(BindingFlags.Public | BindingFlags.Instance);
             //Expression.Property(Expression.Constant(Source,typeof(T)),)
             foreach (var name in member)
@@ -465,7 +567,9 @@ namespace CommonLibCore.CommonLib
                     continue;
                 try
                 {
-                    var FindInSource = SourceProperties.Where(s => s.Name == Name).SingleOrDefault();
+                    var FindInSource = SourceProperties
+                        .Where(s => s.Name == Name)
+                        .SingleOrDefault();
                     var FindInDest = DestProperties.Where(s => s.Name == Name).SingleOrDefault();
                     if (FindInSource != null && FindInDest != null)
                     {
@@ -475,10 +579,10 @@ namespace CommonLibCore.CommonLib
                 catch
                 {
                     //có thể xảy ra lỗi không giống kiểu dữ liệu ở đấy --> sẽ xử lý riêng
-
                 }
             }
         }
+
         /// <summary>
         /// điền đủ thông tin vào các trường dữ liệu sẵn có nếu như nó null hoặc rỗng
         /// </summary>
@@ -487,14 +591,20 @@ namespace CommonLibCore.CommonLib
         /// <returns></returns>
         public static void CloneIfNull<T>(this object Source, T DestObj)
         {
-            PropertyInfo[] SourceProperties = Source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] SourceProperties = Source
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             foreach (var DestProp in DestProperties)
             {
                 String Name = DestProp.Name;
                 try
                 {
-                    var FindInSource = SourceProperties.Where(s => s.Name == Name).SingleOrDefault();
+                    var FindInSource = SourceProperties
+                        .Where(s => s.Name == Name)
+                        .SingleOrDefault();
                     var FindInDest = DestProperties.Where(s => s.Name == Name).SingleOrDefault();
                     if (FindInSource != null && FindInDest != null)
                     {
@@ -506,19 +616,22 @@ namespace CommonLibCore.CommonLib
                 catch
                 {
                     //có thể xảy ra lỗi không giống kiểu dữ liệu ở đấy --> sẽ xử lý riêng
-
                 }
             }
         }
 
         public static T ConvertFromExpando<T>(this ExpandoObject source)
         {
-            var obj = (T)Activator.CreateInstance(typeof(T));//new instance of T
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var obj = (T)Activator.CreateInstance(typeof(T)); //new instance of T
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             foreach (KeyValuePair<string, object> kvp in source)
             {
                 Console.WriteLine(kvp.Key + ": " + kvp.Value);
-                var DestProp = DestProperties.Where(d => d.Name.ToLower() == kvp.Key.ToLower()).SingleOrDefault();
+                var DestProp = DestProperties
+                    .Where(d => d.Name.ToLower() == kvp.Key.ToLower())
+                    .SingleOrDefault();
                 try
                 {
                     if (DestProp.PropertyType.FullName == "System.DateTime")
@@ -560,16 +673,14 @@ namespace CommonLibCore.CommonLib
                         {
                             try
                             {
-                                DestProp.SetValue(obj, Enum.Parse(DestProp.PropertyType, (string)kvp.Value, true));
+                                DestProp.SetValue(
+                                    obj,
+                                    Enum.Parse(DestProp.PropertyType, (string)kvp.Value, true)
+                                );
                             }
-                            catch (Exception exx)
-                            {
-
-                            }
+                            catch (Exception exx) { }
                         }
-
                     }
-
                     else
                     {
                         try
@@ -581,20 +692,22 @@ namespace CommonLibCore.CommonLib
                             var value = kvp.Value.ConvertFromAnonymous(DestProp.PropertyType);
                             DestProp.SetValue(obj, value);
                         }
-
                     }
                 }
-                catch (Exception ex)
-                {
-
-                }
+                catch (Exception ex) { }
             }
             return obj;
         }
-        public static T CloneFromDictionary<T>(this IDictionary<string, object> Dic, bool igNoreWhiteCard = false)
+
+        public static T CloneFromDictionary<T>(
+            this IDictionary<string, object> Dic,
+            bool igNoreWhiteCard = false
+        )
         {
-            var obj = (T)Activator.CreateInstance(typeof(T));//new instance of T
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var obj = (T)Activator.CreateInstance(typeof(T)); //new instance of T
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             foreach (var DestProp in DestProperties)
             {
                 string Name = DestProp.Name;
@@ -632,10 +745,7 @@ namespace CommonLibCore.CommonLib
                         else
                             DestProp.SetValue(obj, Dic[Name]);
                     }
-                    catch (Exception ex)
-                    {
-
-                    }
+                    catch (Exception ex) { }
                 }
                 catch
                 {
@@ -653,26 +763,46 @@ namespace CommonLibCore.CommonLib
         /// <returns></returns>
         public static T Clone<T>(this object Source, bool igNoreWhiteCard = false)
         {
-            var obj = (T)Activator.CreateInstance(typeof(T));//new instance of T
+            var obj = (T)Activator.CreateInstance(typeof(T)); //new instance of T
             var sourceType = Source.GetType().GetProperties();
             PropertyInfo[] SourceProperties = Source.GetType().GetProperties();
-            PropertyInfo[] DestProperties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] DestProperties = typeof(T).GetProperties(
+                BindingFlags.Public | BindingFlags.Instance
+            );
             foreach (var DestProp in DestProperties)
             {
                 string Name = DestProp.Name;
                 try
                 {
-
-                    var FindInSource = SourceProperties.Where(s => s.Name == Name || (igNoreWhiteCard && s.Name.ToLower().Replace("_", "") == Name.ToLower().Replace("_", ""))).SingleOrDefault();
+                    var FindInSource = SourceProperties
+                        .Where(
+                            s =>
+                                s.Name == Name
+                                || (
+                                    igNoreWhiteCard
+                                    && s.Name.ToLower().Replace("_", "")
+                                        == Name.ToLower().Replace("_", "")
+                                )
+                        )
+                        .SingleOrDefault();
                     if (FindInSource != null)
                     {
                         //if (FindInSource.PropertyType.FullName == DestProp.PropertyType.FullName)
                         //    DestProp.SetValue(obj, FindInSource.GetValue(Source));
-                        if (DestProp.PropertyType.FullName == "System.DateTime" && FindInSource.PropertyType.FullName == "System.String")
+                        if (
+                            DestProp.PropertyType.FullName == "System.DateTime"
+                            && FindInSource.PropertyType.FullName == "System.String"
+                        )
                         {
-                            DestProp.SetValue(obj, ((string)FindInSource.GetValue(Source)).ToDateTime(DateTime.Now));
+                            DestProp.SetValue(
+                                obj,
+                                ((string)FindInSource.GetValue(Source)).ToDateTime(DateTime.Now)
+                            );
                         }
-                        else if (FindInSource.PropertyType.FullName == "System.DateTime" && DestProp.PropertyType.FullName == "System.String")
+                        else if (
+                            FindInSource.PropertyType.FullName == "System.DateTime"
+                            && DestProp.PropertyType.FullName == "System.String"
+                        )
                         {
                             DestProp.SetValue(obj, FindInSource.GetValue(Source).ToString());
                         }
@@ -693,6 +823,7 @@ namespace CommonLibCore.CommonLib
             }
             return obj;
         }
+
         public static Dictionary<string, object> NameValueToDictionary(this NameValueCollection a)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
@@ -707,6 +838,7 @@ namespace CommonLibCore.CommonLib
             }
             return dict;
         }
+
         public static Dictionary<string, object> ConvertToDictionary(this object value)
         {
             if (value == null)
@@ -716,7 +848,7 @@ namespace CommonLibCore.CommonLib
                 return new Dictionary<string, object>((ExpandoObject)value);
             }
 
-            //check nếu T là expando oject thì dùng JsonConvert luôn uôn 
+            //check nếu T là expando oject thì dùng JsonConvert luôn uôn
             if (value.GetType() == typeof(object))
             {
                 string str = value.ToJson();
@@ -727,40 +859,40 @@ namespace CommonLibCore.CommonLib
                 return (Dictionary<string, object>)value;
             }
             var dic = new Dictionary<string, object>();
-            PropertyInfo[] DestProperties = value.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            PropertyInfo[] DestProperties = value
+                .GetType()
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance);
             foreach (var property in DestProperties)
             {
                 try
                 {
                     dic.Add(property.Name, property.GetValue(value));
                 }
-                catch (Exception ex)
-                {
-
-                }
+                catch (Exception ex) { }
             }
             return dic;
         }
+
         public static dynamic ToSafeDynamic(this object obj)
         {
             //would be nice to restrict to anonymous types - but alas no.
             IDictionary<string, object> toReturn = new ExpandoObject();
-            foreach (var prop in obj.GetType().GetProperties(
-              BindingFlags.Public | BindingFlags.Instance)
-              .Where(p => p.CanRead))
+            foreach (
+                var prop in obj.GetType()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(p => p.CanRead)
+            )
             {
                 try
                 {
                     toReturn[prop.Name] = prop.GetValue(obj, null);
                 }
-                catch (Exception ex)
-                {
-
-                }
+                catch (Exception ex) { }
             }
 
             return toReturn;
         }
+
         public static ExpandoObject ConvertToExpando(this object value)
         {
             if (value == null)
@@ -769,11 +901,16 @@ namespace CommonLibCore.CommonLib
                 return (ExpandoObject)value;
             return JsonConvert.SerializeObject(value).JsonStringToDynamic();
         }
+
         public static object ConvertFromAnonymous(this object value, Type type)
         {
             return JsonConvert.DeserializeObject(JsonConvert.SerializeObject(value), type);
         }
-        public static T ConvertFromDictionary<T>(this Dictionary<string, object> dic, bool stringifyObjectId = true)
+
+        public static T ConvertFromDictionary<T>(
+            this Dictionary<string, object> dic,
+            bool stringifyObjectId = true
+        )
         {
             try
             {
@@ -800,6 +937,7 @@ namespace CommonLibCore.CommonLib
                 return JsonConvert.DeserializeObject<T>(dic.ToJson());
             }
         }
+
         /// <summary>
         /// Convert from anonimousObject to an Object
         /// </summary>
@@ -827,7 +965,9 @@ namespace CommonLibCore.CommonLib
                 }
                 else
                 {
-                    foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType()))
+                    foreach (
+                        PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType())
+                    )
                     {
                         var objValue = property.GetValue(value);
                         expando.Add(property.Name, property.GetValue(value));
@@ -844,10 +984,12 @@ namespace CommonLibCore.CommonLib
                 return JsonConvert.DeserializeObject<T>(value.ToJson());
             }
         }
+
         public static object ToObject<T>(this T obj, Func<T, object> predicate)
         {
             return predicate(obj);
         }
+
         public static bool IsSimple(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
@@ -857,10 +999,11 @@ namespace CommonLibCore.CommonLib
                 return IsSimple(typeInfo.GetGenericArguments()[0]);
             }
             return typeInfo.IsPrimitive
-              || typeInfo.IsEnum
-              || type.Equals(typeof(string))
-              || type.Equals(typeof(decimal));
+                || typeInfo.IsEnum
+                || type.Equals(typeof(string))
+                || type.Equals(typeof(decimal));
         }
+
         public static T CreateInstance<T>(this Type type, params object[] args)
         {
             return (T)FastActivator.Create(type, args);
@@ -880,6 +1023,7 @@ namespace CommonLibCore.CommonLib
         {
             return MathUtils.StartsWith(a, b, ignoreCase);
         }
+
         public static bool IsEmpty(this string value)
         {
             return MathUtils.IsEmpty(value);
@@ -890,37 +1034,63 @@ namespace CommonLibCore.CommonLib
             return MathUtils.IsNullOrDbNull(value);
         }
 
-        public static List<T> GetPaging<T>(this List<T> list, int pageIndex, int pageSize, out int pageCount)
+        public static List<T> GetPaging<T>(
+            this List<T> list,
+            int pageIndex,
+            int pageSize,
+            out int pageCount
+        )
         {
             int recordCount;
             return GetPaging(list, pageIndex, pageSize, out pageCount, out recordCount);
         }
 
-        public static List<T> GetPaging<T>(this List<T> list, int pageIndex, int pageSize, out int pageCount, out int recordCount)
+        public static List<T> GetPaging<T>(
+            this List<T> list,
+            int pageIndex,
+            int pageSize,
+            out int pageCount,
+            out int recordCount
+        )
         {
-            return MathUtils.GetPaging<T>(list, pageIndex, pageSize, out pageCount, out recordCount);
+            return MathUtils.GetPaging<T>(
+                list,
+                pageIndex,
+                pageSize,
+                out pageCount,
+                out recordCount
+            );
         }
 
         public static void InsertSort<T>(this List<T> list, T item, Comparison<T> comparison)
         {
             MathUtils.InsertSort<T>(list, item, comparison);
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
-        public static List<T> QuickSort<T>(this List<T> list) where T : IComparable<T>
+        public static List<T> QuickSort<T>(this List<T> list)
+            where T : IComparable<T>
         {
-            return MathUtils.QuickSort(list, (x, y) =>
-            {
-                if (x == null && y == null) return 0;
-                if (x == null && y != null) return -1;
-                if (x != null && y == null) return 1;
+            return MathUtils.QuickSort(
+                list,
+                (x, y) =>
+                {
+                    if (x == null && y == null)
+                        return 0;
+                    if (x == null && y != null)
+                        return -1;
+                    if (x != null && y == null)
+                        return 1;
 
-                return x.CompareTo(y);
-            });
+                    return x.CompareTo(y);
+                }
+            );
         }
+
         public static void QuickSort<T>(this List<T> list, Comparison<T> comparison)
         {
             MathUtils.QuickSort(list, comparison);
@@ -930,6 +1100,7 @@ namespace CommonLibCore.CommonLib
         {
             return JsonUtils.DeserializeCustom<T>(jsonStr);
         }
+
         public static string ToJson<T>(this List<T> list)
         {
             return JsonUtils.SerializeCustom(list);
@@ -937,16 +1108,22 @@ namespace CommonLibCore.CommonLib
 
         public static string ToJson(this object value, bool ignoreNull = true)
         {
-            return JsonConvert.SerializeObject(value, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            return JsonConvert.SerializeObject(
+                value,
+                new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }
+            );
         }
+
         public static int IndexOf(this byte[] bytes, byte[] pattern)
         {
             return MathUtils.IndexOf(bytes, pattern);
         }
+
         public static int IndexOf(this byte[] bytes, int offset, int length, byte[] pattern)
         {
             return MathUtils.IndexOf(bytes, offset, length, pattern);
         }
+
         public static T[] RandomSort<T>(this T[] array)
         {
             return RandomUtils.RandomSort(array);
@@ -996,6 +1173,7 @@ namespace CommonLibCore.CommonLib
         {
             return MathUtils.ToDouble(value);
         }
+
         public static decimal ToDecimal(this object value)
         {
             return MathUtils.ToDecimal(value);
@@ -1111,6 +1289,4 @@ namespace CommonLibCore.CommonLib
             return value >= minValue && value <= maxValue;
         }
     }
-
 }
-
