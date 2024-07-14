@@ -855,5 +855,32 @@ namespace CommonLibCore.CommonLib
             }
             return text.ToLower();
         }
+
+        public static string GetRealName(this string field, Type cursorType)
+        {
+            // Tách tên trường thành các phần bằng dấu chấm
+            string[] listId = field.Split(".".ToCharArray());
+            // Lấy thuộc tính đầu tiên của kiểu dữ liệu
+            var property = cursorType.GetPropertyIgnoreCase(listId[0]);
+            // Nếu không tìm thấy thuộc tính, trả về tên trường ban đầu
+            if (property == null)
+                return field;
+            // Cập nhật kiểu dữ liệu hiện tại thành kiểu của thuộc tính tìm thấy
+            cursorType = property.PropertyType;
+            // Lấy tên của thuộc tính
+            string Name = property.Name;
+            // Nếu chỉ có một phần, trả về tên thuộc tính
+            if (listId.Length == 1)
+            {
+                return Name;
+            }
+            else
+            {
+                // Lấy phần còn lại của trường
+                string subField = field.Substring(listId[0].Length + 1);
+                // Đệ quy để tìm tên thực tế của phần còn lại của trường
+                return Name + "." + subField.GetRealName(cursorType);
+            }
+        }
     }
 }

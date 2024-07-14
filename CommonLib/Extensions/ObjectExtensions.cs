@@ -27,38 +27,47 @@ namespace CommonLibCore.CommonLib
             bool ignoreNull = false
         )
         {
+            // Khởi tạo một List để lưu trữ các tên trường
             List<string> fields = new List<string>();
+            // Kiểm tra nếu đối tượng là ExpandoObject
             if (value.GetType() == typeof(ExpandoObject))
             {
                 IDictionary<string, object> propertyValues = (ExpandoObject)value;
+                // Duyệt qua từng thuộc tính của ExpandoObject
                 foreach (var property in propertyValues.Keys)
                 {
                     object fieldValue = propertyValues[property];
+                    // Nếu giá trị của trường là null và ignoreNull = false, thêm tên trường vào danh sách
                     if (fieldValue == null)
                     {
                         if (!ignoreNull)
                             fields.Add(property);
-                        continue;
+                        continue; // Chuyển sang phần tử tiếp theo trong vòng lặp
                     }
+                    // Thêm tên trường vào danh sách
                     fields.Add(property);
                 }
             }
             else
             {
+                // Nếu đối tượng không phải là ExpandoObject, sử dụng TypeDescriptor để lấy các thuộc tính
                 foreach (
                     PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType())
                 )
                 {
                     object fieldValue = property.GetValue(value);
+                    // Nếu giá trị của trường là null và ignoreNull = false, thêm tên trường vào danh sách
                     if (fieldValue == null)
                     {
                         if (!ignoreNull)
                             fields.Add(property.Name);
-                        continue;
+                        continue; // Chuyển sang phần tử tiếp theo trong vòng lặp
                     }
+                    // Thêm tên trường vào danh sách
                     fields.Add(property.Name);
                 }
             }
+            // Trả về danh sách chứa các tên trường
             return fields;
         }
 
@@ -138,26 +147,30 @@ namespace CommonLibCore.CommonLib
         {
             if (o == null)
                 return false;
-            return o is IList
-                && o.GetType().IsGenericType
-                && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>));
+            return o is IList // Kiểm tra xem đối tượng có implement IList hay không
+                && o.GetType().IsGenericType // Kiểm tra xem đối tượng có phải là kiểu Generic hay không
+                && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(List<>)); // Kiểm tra xem kiểu Generic của đối tượng có phải là List<>
         }
 
         public static bool IsDictionary(this object o)
         {
             if (o == null)
                 return false;
-            return o is IDictionary
-                && o.GetType().IsGenericType
-                && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>));
+            return o is IDictionary // Kiểm tra xem đối tượng có implement IDictionary hay không
+                && o.GetType().IsGenericType // Kiểm tra xem đối tượng có phải là một kiểu Generic hay không
+                && o.GetType().GetGenericTypeDefinition().IsAssignableFrom(typeof(Dictionary<,>)); // Kiểm tra xem kiểu Generic của đối tượng có phải là Dictionary<,>
         }
 
         public static dynamic ToDynamic(this object value)
         {
+            // Tạo một ExpandoObject để lưu trữ các thuộc tính và giá trị của đối tượng
             IDictionary<string, object> expando = new ExpandoObject();
 
+            // Lặp qua các thuộc tính của đối tượng và thêm chúng vào ExpandoObject
             foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(value.GetType()))
+                // Thêm tên thuộc tính và giá trị tương ứng vào ExpandoObject
                 expando.Add(property.Name, property.GetValue(value));
+            // Trả về ExpandoObject dưới dạng dynamic
             return expando as ExpandoObject;
         }
 
@@ -165,58 +178,81 @@ namespace CommonLibCore.CommonLib
         {
             try
             {
+                // Tạo một ExpandoObjectConverter để sử dụng khi chuyển đổi chuỗi JSON
                 var converter = new ExpandoObjectConverter();
+                // Chuyển đổi chuỗi JSON thành ExpandoObject
                 dynamic message = JsonConvert.DeserializeObject<ExpandoObject>(value, converter);
+                // Trả về ExpandoObject dưới dạng dynamic
                 return message;
             }
             catch (Exception ex)
             {
+                // Nếu có lỗi xảy ra, trả về giá trị gốc của chuỗi
                 return value;
             }
         }
 
         public static Type GetFieldType(this Type T, string fieldName)
         {
+            // Tạo một danh sách các tên thuộc tính (mặc dù danh sách này không được sử dụng trong phương thức này)
             List<string> PropertyList = new List<string>();
+            // Lấy tất cả các thuộc tính của kiểu T
             PropertyInfo[] props = T.GetProperties();
+            // Lặp qua tất cả các thuộc tính
             foreach (PropertyInfo prop in props)
             {
+                // Nếu tên thuộc tính trùng với fieldName, trả về kiểu của thuộc tính đó
                 if (prop.Name == fieldName)
                 {
                     return prop.PropertyType;
                 }
             }
+            // Nếu không tìm thấy thuộc tính, trả về null
             return null;
         }
 
         public static List<string> GetSecondKeys<T>()
         {
+            // Tạo một danh sách để lưu trữ tên các thuộc tính
             List<string> PropertyList = new List<string>();
+            // Lấy tất cả các thuộc tính của kiểu T
             PropertyInfo[] props = typeof(T).GetProperties();
+            // Duyệt qua từng thuộc tính
             foreach (PropertyInfo prop in props)
             {
+                // Lấy tất cả các thuộc tính tùy chỉnh gắn với thuộc tính hiện tại
                 object[] attrs = prop.GetCustomAttributes(true);
+                // Duyệt qua từng thuộc tính tùy chỉnh
                 foreach (object attr in attrs)
                 {
+                    // Kiểm tra xem thuộc tính tùy chỉnh có phải là SecondaryIdAttribute hay không
                     SecondaryIdAttribute authAttr = attr as SecondaryIdAttribute;
+                    // Nếu đúng, thêm tên thuộc tính vào danh sách
                     if (authAttr != null)
                     {
                         PropertyList.Add(prop.Name);
                     }
                 }
             }
+            // Trả về danh sách tên các thuộc tính
             return PropertyList;
         }
 
         public static bool HasSecondKey<T>()
         {
+            // Lấy tất cả các thuộc tính của kiểu T
             PropertyInfo[] props = typeof(T).GetProperties();
+            // Duyệt qua từng thuộc tính
             foreach (PropertyInfo prop in props)
             {
+                // Lấy tất cả các thuộc tính tùy chỉnh gắn với thuộc tính hiện tại
                 object[] attrs = prop.GetCustomAttributes(true);
+                // Duyệt qua từng thuộc tính tùy chỉnh
                 foreach (object attr in attrs)
                 {
+                    // Kiểm tra xem thuộc tính tùy chỉnh có phải là SecondaryIdAttribute hay không
                     SecondaryIdAttribute authAttr = attr as SecondaryIdAttribute;
+                    // Nếu đúng, trả về true
                     if (authAttr != null)
                     {
                         return true;
@@ -378,6 +414,7 @@ namespace CommonLibCore.CommonLib
             bool ignoreCase = false
         )
         {
+            // Lấy thuộc tính của đối tượng với tên thuộc tính được chỉ định
             var IndexProp = obj.GetType()
                 .GetProperties()
                 .Where(
@@ -388,6 +425,8 @@ namespace CommonLibCore.CommonLib
                         )
                 )
                 .SingleOrDefault();
+
+            // Nếu thuộc tính được tìm thấy và không null, gán giá trị cho thuộc tính
             if (IndexProp != null && !IndexProp.IsNullOrEmpty())
             {
                 IndexProp.SetValue(obj, Value);
@@ -409,25 +448,33 @@ namespace CommonLibCore.CommonLib
 
         public static void CloneAllFieldTo<T>(this object Source, T DestObj)
         {
+            // Lấy tất cả các thuộc tính công khai của đối tượng nguồn
             PropertyInfo[] SourceProperties = Source
                 .GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            // Lấy tất cả các thuộc tính công khai của đối tượng đích
             PropertyInfo[] DestProperties = typeof(T).GetProperties(
                 BindingFlags.Public | BindingFlags.Instance
             );
+            // Lấy tất cả các thuộc tính công khai của đối tượng đích để sử dụng trong vòng lặp
             PropertyInfo[] selectProperties = typeof(T).GetProperties(
                 BindingFlags.Public | BindingFlags.Instance
             );
             //Expression.Property(Expression.Constant(Source,typeof(T)),)
+            // Duyệt qua từng thuộc tính trong danh sách thuộc tính được chọn
             foreach (var selectProp in selectProperties)
             {
+                // Lấy tên của thuộc tính hiện tại
                 String Name = selectProp.Name;
                 try
                 {
+                    // Tìm thuộc tính trong đối tượng nguồn có tên giống với tên thuộc tính hiện tại
                     var FindInSource = SourceProperties
                         .Where(s => s.Name == Name)
                         .SingleOrDefault();
+                    // Tìm thuộc tính trong đối tượng đích có tên giống với tên thuộc tính hiện tại
                     var FindInDest = DestProperties.Where(s => s.Name == Name).SingleOrDefault();
+                    // Nếu tìm thấy thuộc tính trong cả đối tượng nguồn và đích, sao chép giá trị
                     if (FindInSource != null && FindInDest != null)
                     {
                         FindInDest.SetValue(DestObj, FindInSource.GetValue(Source));
