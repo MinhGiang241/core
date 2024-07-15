@@ -7,7 +7,6 @@ using System.Reflection;
 using CommonLibCore.CommonLib.Attributes;
 using CommonLibCore.CommonLib.Reflect;
 using CommonLibCore.CommonLib.Serialization;
-using Confluent.Kafka;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
